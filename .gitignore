@@ -1,0 +1,19 @@
+test.py
+test.js
+*.pyc
+
+# temp
+tmp
+
+# Virtual environment
+venv
+
+# Developer
+*.sublime-*
+*.idea/
+
+# SQLite databases
+*.sqlite*
+
+# Foreman环境变量文件
+*.env

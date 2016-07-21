@@ -1,0 +1,41 @@
+<ul class="comments">
+    {% for comment in comments %}
+        <li class="comment">
+            <div class="comment-thumbnail">
+                <a href="{{ url_for('.user', username=comment.author.username) }}">
+                    <img src="{{ comment.author.gravatar(size=40) }}" class="img-round profile-thumbnail">
+                </a>
+            </div>
+            <div class="comment-content">
+                <div class="comment-date">{{ moment(comment.timestamp).fromNow() }}</div>
+                <div class="comment-author"><a
+                        href="{{ url_for('.user', username=comment.author.username) }}">{{ comment.author.username }}</a>
+                </div>
+                <div class="comment-body">
+                    {% if comment.disabled %}
+                        <p><i>This comment has been disabled by a moderator.</i></p>
+                    {% endif %}
+                    <!-- 修改者或评论启用才渲染 -->
+                    {% if moderate or not comment.disabled %}
+                        {% if comment.body_html %}
+                            {# | safe 后缀告诉Jinja2不要转义HTML元素 #}
+                            {# 出于安全考虑, Jinja2默认转义所有模板变量 #}
+                            {{ comment.body_html | safe }}
+                        {% else %}
+                            {{ comment.body }}
+                        {% endif %}
+                    {% endif %}
+                </div>
+                <!-- 如果是协管员, moderate为True -->
+                {% if moderate %}
+                    <br>
+                    {% if comment.disabled %}
+                        <a href="{{ url_for('.moderate_enable', id=comment.id, page=page) }}" class="btn btn-default btn-xs">Enable</a>
+                    {% else %}
+                        <a href="{{ url_for('.moderate_disable', id=comment.id, page=page) }}" class="btn btn-danger btn-xs">Disable</a>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </li>
+    {% endfor %}
+</ul>

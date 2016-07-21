@@ -1,0 +1,81 @@
+{% extends "bootstrap/base.html" %}
+
+{% block title %}
+    Flasky
+{% endblock title %}
+
+{% block head %}
+    {{ super() }}
+    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename = 'favicon.ico') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename = 'favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" type="text/css">
+{% endblock head %}
+
+{% block navbar %}
+    <div class="navbar navbar-inverse" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+
+                <a href="{{ url_for('main1.index') }}" class="navbar-brand">Flasky</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="{{ url_for('main1.index') }}">Home</a></li>
+                    {% if current_user.is_authenticated %}
+                        <li>
+                            <a href="{{ url_for('main1.user', username=current_user.username) }}">Profile</a>
+                        </li>
+                    {% endif %}
+                </ul>
+                {# 定义右上角登陆 #}
+                <ul class="nav navbar-nav navbar-right">
+                    {# current_user由Flask-Login定义, 在视图和模板中自动可用 #}
+                    <!-- 管理评论链接 -->
+                    {% if current_user.can(Permission.MODERATE_COMMENTS) %}
+                        <li><a href="{{ url_for('main1.moderate') }}">Moderate Comments</a></li>
+                    {% endif %}
+                    {% if current_user.is_authenticated %}
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <img src="{{ current_user.gravatar(size=18) }}">
+                                Account <b class="caret"></b>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{{ url_for('auth.change_password') }}">Change Password</a></li>
+                                <li><a href="{{ url_for('auth.change_email_request') }}">Change Email</a></li>
+                                <li><a href="{{ url_for('auth.logout') }}">Log Out</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li><a href="{{ url_for('auth.login') }}">Log In</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock navbar %}
+
+{% block content %}
+    <div class="container">
+        {% for message in get_flashed_messages() %}
+            <div class="alert alert-warning">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                {{ message }}
+            </div>
+        {% endfor %}
+        {% block page_content %}
+        {% endblock page_content %}
+    </div>
+{% endblock content %}
+
+{% block scripts %}
+    {{ super() }}
+    {{ moment.include_moment() }}
+    {{ moment.lang('zh-cn') }}
+{% endblock scripts %}

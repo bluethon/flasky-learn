@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+
+{% block title %}
+    Flasky - Comment Moderation
+{% endblock title %}
+
+{% block page_content %}
+    <div class="page-header">
+        <h1>Comment Moderation</h1>
+    </div>
+    <!-- Jinja2的set指令定义变量, 设定时候渲染评论管理功能 -->
+    {% set moderate = True %}
+    {% include '_comments.html' %}
+    {% if pagination %}
+        <div class="pagination">
+            {{ macros.pagination_widget(pagination, '.moderate') }}
+        </div>
+    {% endif %}
+{% endblock page_content %}
