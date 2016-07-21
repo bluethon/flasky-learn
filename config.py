@@ -65,6 +65,8 @@ class TestingConfig(Config):
 
 
 class ProductionConfig(Config):
+    MAIL_SERVER = 'smtp.163.com'
+    MAIL_PORT = 465
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or (
         'sqlite:///' + os.path.join(basedir, 'data.sqlite'))
 
