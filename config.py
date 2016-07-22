@@ -6,7 +6,6 @@
 
 import os
 
-
 # 当前文件的目录(文件夹名称)的绝对路径
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -23,12 +22,21 @@ class Config:
     # 记录查询统计数字功能
     # 默认get_debug_queries仅调试可用, 为记录数据库缓慢语句, 打开
     SQLALCHEMY_RECORD_QUERIES = True
+
+    MAIL_SERVER = 'smtp.163.com'
+    MAIL_PORT = 465
+    MAIL_USE_SSL = True
+
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME', default=None)
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', default=None)
+
     # 邮件标题前缀
     FLASKY_MAIL_SUBJECT_PREFIX = '[FLASKY]'
     # 发送者
     FLASKY_MAIL_SENDER = 'Flasky Admin <j5088794@163.com>'
     # 管理员, 接收者
     FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN', default='j5088794@163.com')
+
     FLASKY_POSTS_PER_PAGE = 10
     FLASKY_FOLLOWERS_PER_PAGE = 50
     FLASKY_COMMENTS_PER_PAGE = 10
@@ -47,11 +55,6 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    MAIL_SERVER = 'smtp.163.com'
-    MAIL_PORT = 465
-    MAIL_USE_SSL = True
-    MAIL_USERNAME = os.environ.get('MAIL_USERNAME', default=None)
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', default=None)
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or (
         'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite'))
 
@@ -65,8 +68,6 @@ class TestingConfig(Config):
 
 
 class ProductionConfig(Config):
-    MAIL_SERVER = 'smtp.163.com'
-    MAIL_PORT = 465
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or (
         'sqlite:///' + os.path.join(basedir, 'data.sqlite'))
 
@@ -97,7 +98,7 @@ class ProductionConfig(Config):
         app.logger.addHandler(mail_handler)
 
 
-class HerokuConfig(Config):
+class HerokuConfig(ProductionConfig):
     SSL_DISABLE = bool(os.environ.get('SSL_DISABLE'))
 
     @classmethod
