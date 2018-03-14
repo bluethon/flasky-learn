@@ -8,9 +8,12 @@
 import os
 
 # 开启覆盖测试
+from hello import manager
+
 COV = None
 if os.environ.get('FLASK_COVERAGE'):
     import coverage
+    
     # 启动覆盖测试引擎, branch=True开启分支覆盖分析, include限制分析范围
     COV = coverage.coverage(branch=True, include='app/*')
     COV.start()
@@ -22,33 +25,38 @@ if os.path.exists('.env'):
         if len(var) == 2:
             os.environ[var[0]] = var[1]
 
-from flask_script import Manager, Shell
-from flask_migrate import Migrate, MigrateCommand
+import click
+# from flask_script import Manager, Shell
+# from flask_migrate import Migrate, MigrateCommand
+from flask_migrate import Migrate
 
 from app import create_app, db
 from app.models import User, Follow, Role, Permission, Post, Comment
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
-manager = Manager(app)
+# manager = Manager(app)
 # 导入的db开始为空对象, 上面create_app初始化完成
 migrate = Migrate(app, db)
 
 
 # 下列都用在(python xx.py ____)这里
 # 注册app, db, User, Role
+@app.shell_context_processor
 def make_shell_context():
     return dict(app=app, db=db, User=User, Follow=Follow, Role=Role,
                 Permission=Permission, Post=Post, Comment=Comment)
 
 
-# shell 注册make_context回调函数, 自动导入app等对象
-manager.add_command('shell', Shell(make_context=make_shell_context))
-# 添加一个db命令
-manager.add_command('db', MigrateCommand)
+# decrepit
+# # shell 注册make_context回调函数, 自动导入app等对象
+# manager.add_command('shell', Shell(make_context=make_shell_context))
+# # 添加一个db命令
+# manager.add_command('db', MigrateCommand)
 
 
 # 修饰器 自定义命令, 函数名即为命令名
-@manager.command
+@app.cli.command
+@click.option('--coverage/--no-coverage', default=False, help='coverage')
 # test() 添加布尔值参数 即可 为test命令添加布尔值选项
 def test(coverage=False):
     # 下列说明会在shell帮助中显示
@@ -80,7 +88,9 @@ def test(coverage=False):
         COV.erase()
 
 
-@manager.command
+@app.cli.command
+@click.option('--length', default=25, help='Profile stack length')
+@click.option('--profile_dir', default=None, help='Profile directory')
 def profile(length=25, profile_dir=None):
     """ 代码分析器监视下启动 app """
     # 使用`python manage.py profile`启动, 终端会显示每条请求的分析数据
@@ -92,7 +102,7 @@ def profile(length=25, profile_dir=None):
     app.run()
 
 
-@manager.command
+@app.cli.command
 def deploy():
     """ 部署命令 """
     # 自动执行命令
@@ -108,4 +118,5 @@ def deploy():
 
 
 if __name__ == '__main__':
-    manager.run()
+    # manager.run()
+    app.run()
